@@ -60,6 +60,8 @@ let currentDate = new Date()
 let isTestMode = false
 
 function updateState(date) {
+  console.log("Updating state for date:", date) // إضافة سجل لتاريخ التحديث
+
   const progressBar = document.querySelector(".progress-bar")
   const progressText = document.getElementById("progressText")
   const messageText = document.getElementById("messageText")
@@ -70,6 +72,8 @@ function updateState(date) {
     const elapsedDays = Math.floor((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
     const progress = (elapsedDays / totalDays) * 100
 
+    console.log("Elapsed days:", elapsedDays) // إضافة سجل لعدد الأيام المنقضية
+
     progressBar.style.width = `${progress}%`
     progressText.textContent = `باقي ${Math.ceil(totalDays - elapsedDays)} أيام على نهاية الرحلة`
 
@@ -79,11 +83,13 @@ function updateState(date) {
     document.getElementById("dailyMessage").style.display = "block"
     document.getElementById("dailyDua").style.display = "block"
   } else if (date < startDate) {
+    console.log("Date is before start date") // إضافة سجل إذا كان التاريخ قبل تاريخ البداية
     progressBar.style.width = "0%"
     progressText.textContent = "الرحلة لم تبدأ بعد"
     document.getElementById("dailyMessage").style.display = "none"
     document.getElementById("dailyDua").style.display = "none"
   } else {
+    console.log("Date is after end date") // إضافة سجل إذا كان التاريخ بعد تاريخ النهاية
     progressBar.style.width = "100%"
     progressText.textContent = "انتهت الرحلة"
     document.getElementById("dailyMessage").style.display = "none"
@@ -142,20 +148,28 @@ async function updatePrayerTimes(date) {
     prayerTimesList.innerHTML = "<li>عذرًا، حدث خطأ أثناء تحميل مواقيت الصلاة. يرجى المحاولة مرة أخرى لاحقًا.</li>"
   }
 }
-
 async function getCurrentServerTime() {
   try {
-    const response = await fetch("https://worldtimeapi.org/api/timezone/Africa/Cairo")
+    const response = await fetch("https://worldtimeapi.org/api/timezone/Asia/Riyadh")
     const data = await response.json()
-    return new Date(data.datetime)
+    const serverDate = new Date(data.datetime)
+    console.log("Server date:", serverDate)
+    console.log("Is start date:", serverDate.toDateString() === startDate.toDateString())
+    return serverDate
   } catch (error) {
     console.error("Error fetching server time:", error)
-    return new Date() // استخدام الوقت المحلي كاحتياطي
+    const localDate = new Date()
+    console.log("Using local date:", localDate)
+    return localDate // استخدام الوقت المحلي كاحتياطي
   }
 }
 
 async function updateWebsite() {
   currentDate = await getCurrentServerTime()
+  console.log("Current date:", currentDate)
+  console.log("Start date:", startDate)
+  console.log("End date:", endDate)
+  console.log("Is between start and end:", isDateBetween(currentDate, startDate, endDate))
   updateState(currentDate)
 }
 
