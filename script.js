@@ -8,7 +8,7 @@ const dailyMessages = [
   "كل ما بفتكرك بدعيلك ربنا يحفظك ويرجعك لينا بالسلامة",
   "يارب تكوني بتحسي بالفرحة والإيمان في كل لحظة من عمرتك",
   "مفيش أجمل من إنك تكوني في بيت ربنا، ربنا يتقبل منك",
-  "عارف إنك بتدعيلنا هناك، وإحنا كمان مش بننساكي من دعوتنا",
+  "عارفة إنك بتدعيلنا هناك، وإحنا كمان مش بننساكي من دعوتنا",
   "يا رب ترجعي لينا وكلك نور وبركة من زيارتك للحرم",
   "كل يوم بيعدي وإحنا بنعد الأيام لحد ما ترجعي بالسلامة",
   "ربنا يجعل رحلتك دي سبب في سعادتك في الدنيا والآخرة",
@@ -90,7 +90,6 @@ function updateState(date) {
     document.getElementById("dailyDua").style.display = "none"
   }
 
-  // تحديث التحقق من عيد الميلاد وعرض الرسائل
   if (isBirthday(date)) {
     birthdayMessagesElement.style.display = "block"
     const birthdayMessagesList = document.getElementById("birthdayMessagesList")
@@ -144,39 +143,43 @@ async function updatePrayerTimes(date) {
   }
 }
 
-// function toggleTestMode() {
-//   isTestMode = !isTestMode
-//   const toggleButton = document.getElementById("toggleTestMode")
-//   const dateInputContainer = document.getElementById("dateInputContainer")
+async function getCurrentServerTime() {
+  try {
+    const response = await fetch("https://worldtimeapi.org/api/timezone/Africa/Cairo")
+    const data = await response.json()
+    return new Date(data.datetime)
+  } catch (error) {
+    console.error("Error fetching server time:", error)
+    return new Date() // استخدام الوقت المحلي كاحتياطي
+  }
+}
 
-//   if (isTestMode) {
-//     toggleButton.textContent = "إيقاف وضع الاختبار"
-//     dateInputContainer.style.display = "block"
-//     document.getElementById("testDate").valueAsDate = currentDate
-//   } else {
-//     toggleButton.textContent = "تفعيل وضع الاختبار"
-//     dateInputContainer.style.display = "none"
-//     currentDate = new Date()
-//   }
+async function updateWebsite() {
+  currentDate = await getCurrentServerTime()
+  updateState(currentDate)
+}
 
-//   updateState(currentDate)
-// }
+// تحديث الموقع كل دقيقة
+setInterval(updateWebsite, 60000)
 
-// document.getElementById("toggleTestMode").addEventListener("click", toggleTestMode)
+// التحديث الأولي
+document.addEventListener("DOMContentLoaded", updateWebsite)
 
-// document.getElementById("testDate").addEventListener("change", (e) => {
-//   if (isTestMode) {
-//     currentDate = new Date(e.target.value)
-//     updateState(currentDate)
-//   }
-// })
-
+// إضافة وظيفة لتحديث الصفحة تلقائيًا كل ساعة
 setInterval(() => {
-  currentDate = new Date()
-  updateState(currentDate)
-}, 60000)
+  location.reload()
+}, 3600000) // 3600000 مللي ثانية = ساعة واحدة
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateState(currentDate)
-})
+// تحديث الحالة كل دقيقة
+//setInterval(() => {
+//  if (!isTestMode) {
+//    currentDate = new Date()
+//    updateState(currentDate)
+//  }
+//}, 60000)
+
+// التحديث الأولي
+//document.addEventListener("DOMContentLoaded", () => {
+//  updateState(currentDate)
+//})
 
