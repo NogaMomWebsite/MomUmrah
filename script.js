@@ -19,7 +19,7 @@ const dailyMessages = [
   "يا ست الكل، يارب عمرتك تكون مقبولة ومبرورة",
   "بنتمنى نشوفك قريب ونسمع منك كل اللي شفتيه في رحلتك الجميلة",
   "آخر يوم في العمرة، ربنا يجعله خير عليكي ويرجعك لينا بالسلامة",
-]
+];
 
 const dailyDuas = [
   "يارب احفظ أمي وارعاها في رحلتها وارزقها من فضلك الواسع",
@@ -42,7 +42,7 @@ const dailyDuas = [
   "اللهم اجعل عمرة أمي سببًا في مغفرة ذنوبها وقبول توبتها",
   "يا رب ارزق أمي رؤية وجهك الكريم في الجنة",
   "اللهم اجعل آخر دعاء أمي في عمرتها مستجاب واختم لها بالخيرات",
-]
+];
 
 const birthdayMessages = [
   "كل سنة وانتي طيبة يا أحلى أم في الدنيا! عيد ميلاد سعيد وانتي في بيت ربنا",
@@ -50,176 +50,89 @@ const birthdayMessages = [
   "عيد ميلادك السنة دي مميز يا ست الكل، ربنا يديم عليكي الصحة والسعادة",
   "أجمل هدية ليكي في عيد ميلادك إنك في الحرم، كل سنة وانتي بخير يا أمي",
   "عيد ميلاد سعيد يا أغلى الناس! دعواتنا ليكي من هنا وانتي في أطهر بقعة",
-]
+];
 
-const startDate = new Date("2025-02-17")
-const endDate = new Date("2025-03-10")
-const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-
-let currentDate = new Date()
-let isTestMode = false
-
-function updateState(date) {
-  console.log("Updating state for date:", date) // إضافة سجل لتاريخ التحديث
-
-  const progressBar = document.querySelector(".progress-bar")
-  const progressText = document.getElementById("progressText")
-  const messageText = document.getElementById("messageText")
-  const duaText = document.getElementById("duaText")
-  const birthdayMessagesElement = document.getElementById("birthdayMessages")
-
-  if (isDateBetween(date, startDate, endDate)) {
-    const elapsedDays = Math.floor((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-    const progress = (elapsedDays / totalDays) * 100
-
-    console.log("Elapsed days:", elapsedDays) // إضافة سجل لعدد الأيام المنقضية
-
-    progressBar.style.width = `${progress}%`
-    progressText.textContent = `باقي ${Math.ceil(totalDays - elapsedDays)} أيام على نهاية الرحلة`
-
-    messageText.textContent = dailyMessages[elapsedDays % dailyMessages.length]
-    duaText.textContent = dailyDuas[elapsedDays % dailyDuas.length]
-
-    document.getElementById("dailyMessage").style.display = "block"
-    document.getElementById("dailyDua").style.display = "block"
-  } else if (date < startDate) {
-    console.log("Date is before start date") // إضافة سجل إذا كان التاريخ قبل تاريخ البداية
-    progressBar.style.width = "0%"
-    progressText.textContent = "الرحلة لم تبدأ بعد"
-    document.getElementById("dailyMessage").style.display = "none"
-    document.getElementById("dailyDua").style.display = "none"
-  } else {
-    console.log("Date is after end date") // إضافة سجل إذا كان التاريخ بعد تاريخ النهاية
-    progressBar.style.width = "100%"
-    progressText.textContent = "انتهت الرحلة"
-    document.getElementById("dailyMessage").style.display = "none"
-    document.getElementById("dailyDua").style.display = "none"
-  }
-
-  if (isBirthday(date)) {
-    birthdayMessagesElement.style.display = "block"
-    const birthdayMessagesList = document.getElementById("birthdayMessagesList")
-    birthdayMessagesList.innerHTML = birthdayMessages.map((msg) => `<p>${msg}</p>`).join("")
-  } else {
-    birthdayMessagesElement.style.display = "none"
-  }
-
-  updatePrayerTimes(date)
-}
-
-function isDateBetween(date, start, end) {
-  return date >= start && date <= end
-}
-
-function isBirthday(date) {
-  return date.getMonth() === 1 && date.getDate() === 26 // 26 فبراير (لاحظ أن الشهور تبدأ من 0)
-}
-
-async function updatePrayerTimes(date) {
-  const prayerTimesList = document.getElementById("prayerTimesList")
-  prayerTimesList.innerHTML = "<li>جاري تحميل مواقيت الصلاة...</li>"
-
-  try {
-    const formattedDate = date.toISOString().split("T")[0]
-    const response = await fetch(
-      `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=Mecca&country=Saudi%20Arabia&method=4`,
-    )
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data = await response.json()
-
-    if (data.code === 200 && data.status === "OK" && data.data && data.data.timings) {
-      const timings = data.data.timings
-      prayerTimesList.innerHTML = `
-                <li>الفجر: ${timings.Fajr}</li>
-                <li>الظهر: ${timings.Dhuhr}</li>
-                <li>العصر: ${timings.Asr}</li>
-                <li>المغرب: ${timings.Maghrib}</li>
-                <li>العشاء: ${timings.Isha}</li>
-            `
-    } else {
-      throw new Error("Invalid data received from API")
-    }
-  } catch (error) {
-    console.error("Error fetching prayer times:", error)
-    prayerTimesList.innerHTML = "<li>عذرًا، حدث خطأ أثناء تحميل مواقيت الصلاة. يرجى المحاولة مرة أخرى لاحقًا.</li>"
-  }
-}
-
-function toggleTestMode() {
-  isTestMode = !isTestMode
-  const toggleButton = document.getElementById("toggleTestMode")
-  const dateInputContainer = document.getElementById("dateInputContainer")
-
-  if (isTestMode) {
-    toggleButton.textContent = "إيقاف وضع الاختبار"
-    dateInputContainer.style.display = "block"
-    document.getElementById("testDate").valueAsDate = currentDate
-  } else {
-    toggleButton.textContent = "تفعيل وضع الاختبار"
-    dateInputContainer.style.display = "none"
-    currentDate = new Date()
-  }
-
-  updateState(currentDate)
-}
-
-document.getElementById("toggleTestMode").addEventListener("click", toggleTestMode)
-
-document.getElementById("testDate").addEventListener("change", (e) => {
-  if (isTestMode) {
-    currentDate = new Date(e.target.value)
-    updateState(currentDate)
-  }
-})
-
-async function getCurrentServerTime() {
-  try {
-    console.log("Attempting to fetch server time...")
-    const response = await fetch("https://worldtimeapi.org/api/timezone/Asia/Riyadh")
-    console.log("Response received:", response)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    const data = await response.json()
-    console.log("Server time data:", data)
-    const serverDate = new Date(data.datetime)
-    console.log("Server date:", serverDate)
-    console.log("Is start date:", serverDate.toDateString() === startDate.toDateString())
-    return serverDate
-  } catch (error) {
-    console.error("Error fetching server time:", error)
-    console.log("Falling back to local time")
-    const localDate = new Date()
-    console.log("Local date being used:", localDate)
-    return localDate // استخدام الوقت المحلي كاحتياطي
-  }
-}
+const startDate = new Date("2025-02-17");
+const endDate = new Date("2025-03-10");
+const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
 async function updateWebsite() {
   try {
-    currentDate = await getCurrentServerTime()
-    console.log("Current date:", currentDate)
-    console.log("Start date:", startDate)
-    console.log("End date:", endDate)
-    console.log("Is between start and end:", isDateBetween(currentDate, startDate, endDate))
-    updateState(currentDate)
+    const currentDate = await getCurrentServerTime();
+    updateState(currentDate);
   } catch (error) {
-    console.error("Error in updateWebsite:", error)
+    console.error("Error in updateWebsite:", error);
   }
 }
 
-// تحديث الموقع كل دقيقة
-setInterval(updateWebsite, 60000)
+function updateState(date) {
+  const progressBar = document.querySelector(".progress-bar");
+  const progressText = document.getElementById("progressText");
+  const messageText = document.getElementById("messageText");
+  const duaText = document.getElementById("duaText");
+  const birthdayMessagesElement = document.getElementById("birthdayMessages");
 
-// التحديث الأولي
-document.addEventListener("DOMContentLoaded", updateWebsite)
+  if (isDateBetween(date, startDate, endDate)) {
+    const elapsedDays = Math.floor((date - startDate) / (1000 * 60 * 60 * 24));
+    const progress = (elapsedDays / totalDays) * 100;
 
-// إضافة وظيفة لتحديث الصفحة تلقائيًا كل ساعة
-setInterval(() => {
-  location.reload()
-}, 3600000) // 3600000 مللي ثانية = ساعة واحدة
+    progressBar.style.width = `${progress}%`;
+    progressText.textContent = `باقي ${Math.ceil(totalDays - elapsedDays)} أيام على نهاية الرحلة`;
 
+    messageText.textContent = dailyMessages[elapsedDays % dailyMessages.length];
+    duaText.textContent = dailyDuas[elapsedDays % dailyDuas.length];
+
+    document.getElementById("dailyMessage").style.display = "block";
+    document.getElementById("dailyDua").style.display = "block";
+  } else {
+    progressBar.style.width = date < startDate ? "0%" : "100%";
+    progressText.textContent = date < startDate ? "الرحلة لم تبدأ بعد" : "انتهت الرحلة";
+    document.getElementById("dailyMessage").style.display = "none";
+    document.getElementById("dailyDua").style.display = "none";
+  }
+
+  if (isBirthday(date)) {
+    birthdayMessagesElement.style.display = "block";
+    document.getElementById("birthdayMessagesList").innerHTML = birthdayMessages.map(msg => `<p>${msg}</p>`).join("");
+  } else {
+    birthdayMessagesElement.style.display = "none";
+  }
+
+  updatePrayerTimes(date);
+}
+
+function isDateBetween(date, start, end) {
+  return date >= start && date <= end;
+}
+
+function isBirthday(date) {
+  return date.getMonth() === 1 && date.getDate() === 26;
+}
+
+async function updatePrayerTimes(date) {
+  const prayerTimesList = document.getElementById("prayerTimesList");
+  prayerTimesList.innerHTML = "<li>جاري تحميل مواقيت الصلاة...</li>";
+
+  try {
+    const formattedDate = date.toISOString().split("T")[0];
+    const response = await fetch(`https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=Mecca&country=Saudi%20Arabia&method=4`);
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    const data = await response.json();
+    const timings = data.data.timings;
+
+    prayerTimesList.innerHTML = `
+      <li>الفجر: ${timings.Fajr}</li>
+      <li>الظهر: ${timings.Dhuhr}</li>
+      <li>العصر: ${timings.Asr}</li>
+      <li>المغرب: ${timings.Maghrib}</li>
+      <li>العشاء: ${timings.Isha}</li>
+    `;
+  } catch (error) {
+    prayerTimesList.innerHTML = "<li>عذرًا، حدث خطأ أثناء تحميل مواقيت الصلاة.</li>";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateWebsite);
+setInterval(updateWebsite, 60000);
