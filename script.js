@@ -1,3 +1,7 @@
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("JavaScript is loaded");
+  updateWebsite();
+});
 const dailyMessages = [
   "يا أمي يا غالية، ربنا يتقبل عمرتك ويجعلها خير وبركة عليكي وعلينا",
   "بحبك يا أحلى أم في الدنيا، يارب تكوني مبسوطة في رحلتك",
