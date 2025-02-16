@@ -148,29 +148,68 @@ async function updatePrayerTimes(date) {
     prayerTimesList.innerHTML = "<li>عذرًا، حدث خطأ أثناء تحميل مواقيت الصلاة. يرجى المحاولة مرة أخرى لاحقًا.</li>"
   }
 }
+
+function toggleTestMode() {
+  isTestMode = !isTestMode
+  const toggleButton = document.getElementById("toggleTestMode")
+  const dateInputContainer = document.getElementById("dateInputContainer")
+
+  if (isTestMode) {
+    toggleButton.textContent = "إيقاف وضع الاختبار"
+    dateInputContainer.style.display = "block"
+    document.getElementById("testDate").valueAsDate = currentDate
+  } else {
+    toggleButton.textContent = "تفعيل وضع الاختبار"
+    dateInputContainer.style.display = "none"
+    currentDate = new Date()
+  }
+
+  updateState(currentDate)
+}
+
+document.getElementById("toggleTestMode").addEventListener("click", toggleTestMode)
+
+document.getElementById("testDate").addEventListener("change", (e) => {
+  if (isTestMode) {
+    currentDate = new Date(e.target.value)
+    updateState(currentDate)
+  }
+})
+
 async function getCurrentServerTime() {
   try {
+    console.log("Attempting to fetch server time...")
     const response = await fetch("https://worldtimeapi.org/api/timezone/Asia/Riyadh")
+    console.log("Response received:", response)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
     const data = await response.json()
+    console.log("Server time data:", data)
     const serverDate = new Date(data.datetime)
     console.log("Server date:", serverDate)
     console.log("Is start date:", serverDate.toDateString() === startDate.toDateString())
     return serverDate
   } catch (error) {
     console.error("Error fetching server time:", error)
+    console.log("Falling back to local time")
     const localDate = new Date()
-    console.log("Using local date:", localDate)
+    console.log("Local date being used:", localDate)
     return localDate // استخدام الوقت المحلي كاحتياطي
   }
 }
 
 async function updateWebsite() {
-  currentDate = await getCurrentServerTime()
-  console.log("Current date:", currentDate)
-  console.log("Start date:", startDate)
-  console.log("End date:", endDate)
-  console.log("Is between start and end:", isDateBetween(currentDate, startDate, endDate))
-  updateState(currentDate)
+  try {
+    currentDate = await getCurrentServerTime()
+    console.log("Current date:", currentDate)
+    console.log("Start date:", startDate)
+    console.log("End date:", endDate)
+    console.log("Is between start and end:", isDateBetween(currentDate, startDate, endDate))
+    updateState(currentDate)
+  } catch (error) {
+    console.error("Error in updateWebsite:", error)
+  }
 }
 
 // تحديث الموقع كل دقيقة
@@ -183,17 +222,4 @@ document.addEventListener("DOMContentLoaded", updateWebsite)
 setInterval(() => {
   location.reload()
 }, 3600000) // 3600000 مللي ثانية = ساعة واحدة
-
-// تحديث الحالة كل دقيقة
-//setInterval(() => {
-//  if (!isTestMode) {
-//    currentDate = new Date()
-//    updateState(currentDate)
-//  }
-//}, 60000)
-
-// التحديث الأولي
-//document.addEventListener("DOMContentLoaded", () => {
-//  updateState(currentDate)
-//})
 
