@@ -1,3 +1,11 @@
+console.log("JavaScript is loaded")
+
+let currentDate = new Date()
+
+const startDate = new Date("2025-02-18")
+const endDate = new Date("2025-03-10")
+const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+
 const dailyMessages = [
   "يا أمي يا غالية، ربنا يتقبل عمرتك ويجعلها خير وبركة عليكي وعلينا",
   "بحبك يا أحلى أم في الدنيا، يارب تكوني مبسوطة في رحلتك",
@@ -52,12 +60,10 @@ const birthdayMessages = [
   "عيد ميلاد سعيد يا أغلى الناس! دعواتنا ليكي من هنا وانتي في أطهر بقعة",
 ]
 
-const startDate = new Date("2025-02-18")
-const endDate = new Date("2025-03-10")
-const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-
-let currentDate = new Date()
-let isTestMode = false
+function updateWebsite() {
+  currentDate = new Date()
+  updateState(currentDate)
+}
 
 function updateState(date) {
   const progressBar = document.querySelector(".progress-bar")
@@ -141,40 +147,6 @@ async function updatePrayerTimes(date) {
     console.error("Error fetching prayer times:", error)
     prayerTimesList.innerHTML = "<li>عذرًا، حدث خطأ أثناء تحميل مواقيت الصلاة. يرجى المحاولة مرة أخرى لاحقًا.</li>"
   }
-}
-
-function toggleTestMode() {
-  isTestMode = !isTestMode
-  const toggleButton = document.getElementById("toggleTestMode")
-  const dateInputContainer = document.getElementById("dateInputContainer")
-
-  if (isTestMode) {
-    toggleButton.textContent = "إيقاف وضع الاختبار"
-    dateInputContainer.style.display = "block"
-    document.getElementById("testDate").valueAsDate = currentDate
-  } else {
-    toggleButton.textContent = "تفعيل وضع الاختبار"
-    dateInputContainer.style.display = "none"
-    currentDate = new Date()
-  }
-
-  updateState(currentDate)
-}
-
-document.getElementById("toggleTestMode").addEventListener("click", toggleTestMode)
-
-document.getElementById("testDate").addEventListener("change", (e) => {
-  if (isTestMode) {
-    currentDate = new Date(e.target.value)
-    updateState(currentDate)
-  }
-})
-
-function updateWebsite() {
-  if (!isTestMode) {
-    currentDate = new Date() // استخدام الوقت المحلي بدلاً من وقت الخادم
-  }
-  updateState(currentDate)
 }
 
 // تحديث الموقع كل دقيقة
