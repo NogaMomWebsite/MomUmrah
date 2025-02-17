@@ -10,7 +10,7 @@ function getCurrentDateInMecca() {
 
 let currentDate = getCurrentDateInMecca()
 
-const startDate = new Date("2025-02-18T00:00:00+03:00")
+const startDate = new Date("2025-02-17T00:00:00+03:00")
 const endDate = new Date("2025-03-10T23:59:59+03:00")
 const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
 
