@@ -1,7 +1,3 @@
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("JavaScript is loaded");
-  updateWebsite();
-});
 const dailyMessages = [
   "يا أمي يا غالية، ربنا يتقبل عمرتك ويجعلها خير وبركة عليكي وعلينا",
   "بحبك يا أحلى أم في الدنيا، يارب تكوني مبسوطة في رحلتك",
@@ -23,7 +19,7 @@ const dailyMessages = [
   "يا ست الكل، يارب عمرتك تكون مقبولة ومبرورة",
   "بنتمنى نشوفك قريب ونسمع منك كل اللي شفتيه في رحلتك الجميلة",
   "آخر يوم في العمرة، ربنا يجعله خير عليكي ويرجعك لينا بالسلامة",
-];
+]
 
 const dailyDuas = [
   "يارب احفظ أمي وارعاها في رحلتها وارزقها من فضلك الواسع",
@@ -46,7 +42,7 @@ const dailyDuas = [
   "اللهم اجعل عمرة أمي سببًا في مغفرة ذنوبها وقبول توبتها",
   "يا رب ارزق أمي رؤية وجهك الكريم في الجنة",
   "اللهم اجعل آخر دعاء أمي في عمرتها مستجاب واختم لها بالخيرات",
-];
+]
 
 const birthdayMessages = [
   "كل سنة وانتي طيبة يا أحلى أم في الدنيا! عيد ميلاد سعيد وانتي في بيت ربنا",
@@ -54,89 +50,136 @@ const birthdayMessages = [
   "عيد ميلادك السنة دي مميز يا ست الكل، ربنا يديم عليكي الصحة والسعادة",
   "أجمل هدية ليكي في عيد ميلادك إنك في الحرم، كل سنة وانتي بخير يا أمي",
   "عيد ميلاد سعيد يا أغلى الناس! دعواتنا ليكي من هنا وانتي في أطهر بقعة",
-];
+]
 
-const startDate = new Date("2025-02-17");
-const endDate = new Date("2025-03-10");
-const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+const startDate = new Date("2025-02-18")
+const endDate = new Date("2025-03-10")
+const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
 
-async function updateWebsite() {
-  try {
-    const currentDate = await getCurrentServerTime();
-    updateState(currentDate);
-  } catch (error) {
-    console.error("Error in updateWebsite:", error);
-  }
-}
+let currentDate = new Date()
+let isTestMode = false
 
 function updateState(date) {
-  const progressBar = document.querySelector(".progress-bar");
-  const progressText = document.getElementById("progressText");
-  const messageText = document.getElementById("messageText");
-  const duaText = document.getElementById("duaText");
-  const birthdayMessagesElement = document.getElementById("birthdayMessages");
+  const progressBar = document.querySelector(".progress-bar")
+  const progressText = document.getElementById("progressText")
+  const messageText = document.getElementById("messageText")
+  const duaText = document.getElementById("duaText")
+  const birthdayMessagesElement = document.getElementById("birthdayMessages")
 
   if (isDateBetween(date, startDate, endDate)) {
-    const elapsedDays = Math.floor((date - startDate) / (1000 * 60 * 60 * 24));
-    const progress = (elapsedDays / totalDays) * 100;
+    const elapsedDays = Math.floor((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+    const progress = (elapsedDays / totalDays) * 100
 
-    progressBar.style.width = `${progress}%`;
-    progressText.textContent = `باقي ${Math.ceil(totalDays - elapsedDays)} أيام على نهاية الرحلة`;
+    progressBar.style.width = `${progress}%`
+    progressText.textContent = `باقي ${Math.ceil(totalDays - elapsedDays)} أيام على نهاية الرحلة`
 
-    messageText.textContent = dailyMessages[elapsedDays % dailyMessages.length];
-    duaText.textContent = dailyDuas[elapsedDays % dailyDuas.length];
+    messageText.textContent = dailyMessages[elapsedDays % dailyMessages.length]
+    duaText.textContent = dailyDuas[elapsedDays % dailyDuas.length]
 
-    document.getElementById("dailyMessage").style.display = "block";
-    document.getElementById("dailyDua").style.display = "block";
+    document.getElementById("dailyMessage").style.display = "block"
+    document.getElementById("dailyDua").style.display = "block"
+  } else if (date < startDate) {
+    progressBar.style.width = "0%"
+    progressText.textContent = "الرحلة لم تبدأ بعد"
+    document.getElementById("dailyMessage").style.display = "none"
+    document.getElementById("dailyDua").style.display = "none"
   } else {
-    progressBar.style.width = date < startDate ? "0%" : "100%";
-    progressText.textContent = date < startDate ? "الرحلة لم تبدأ بعد" : "انتهت الرحلة";
-    document.getElementById("dailyMessage").style.display = "none";
-    document.getElementById("dailyDua").style.display = "none";
+    progressBar.style.width = "100%"
+    progressText.textContent = "انتهت الرحلة"
+    document.getElementById("dailyMessage").style.display = "none"
+    document.getElementById("dailyDua").style.display = "none"
   }
 
   if (isBirthday(date)) {
-    birthdayMessagesElement.style.display = "block";
-    document.getElementById("birthdayMessagesList").innerHTML = birthdayMessages.map(msg => `<p>${msg}</p>`).join("");
+    birthdayMessagesElement.style.display = "block"
+    const birthdayMessagesList = document.getElementById("birthdayMessagesList")
+    birthdayMessagesList.innerHTML = birthdayMessages.map((msg) => `<p>${msg}</p>`).join("")
   } else {
-    birthdayMessagesElement.style.display = "none";
+    birthdayMessagesElement.style.display = "none"
   }
 
-  updatePrayerTimes(date);
+  updatePrayerTimes(date)
 }
 
 function isDateBetween(date, start, end) {
-  return date >= start && date <= end;
+  return date >= start && date <= end
 }
 
 function isBirthday(date) {
-  return date.getMonth() === 1 && date.getDate() === 26;
+  return date.getMonth() === 1 && date.getDate() === 26 // 26 فبراير (لاحظ أن الشهور تبدأ من 0)
 }
 
 async function updatePrayerTimes(date) {
-  const prayerTimesList = document.getElementById("prayerTimesList");
-  prayerTimesList.innerHTML = "<li>جاري تحميل مواقيت الصلاة...</li>";
+  const prayerTimesList = document.getElementById("prayerTimesList")
+  prayerTimesList.innerHTML = "<li>جاري تحميل مواقيت الصلاة...</li>"
 
   try {
-    const formattedDate = date.toISOString().split("T")[0];
-    const response = await fetch(`https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=Mecca&country=Saudi%20Arabia&method=4`);
+    const formattedDate = date.toISOString().split("T")[0]
+    const response = await fetch(
+      `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=Mecca&country=Saudi%20Arabia&method=4`,
+    )
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
 
-    const data = await response.json();
-    const timings = data.data.timings;
+    const data = await response.json()
 
-    prayerTimesList.innerHTML = `
-      <li>الفجر: ${timings.Fajr}</li>
-      <li>الظهر: ${timings.Dhuhr}</li>
-      <li>العصر: ${timings.Asr}</li>
-      <li>المغرب: ${timings.Maghrib}</li>
-      <li>العشاء: ${timings.Isha}</li>
-    `;
+    if (data.code === 200 && data.status === "OK" && data.data && data.data.timings) {
+      const timings = data.data.timings
+      prayerTimesList.innerHTML = `
+                <li>الفجر: ${timings.Fajr}</li>
+                <li>الظهر: ${timings.Dhuhr}</li>
+                <li>العصر: ${timings.Asr}</li>
+                <li>المغرب: ${timings.Maghrib}</li>
+                <li>العشاء: ${timings.Isha}</li>
+            `
+    } else {
+      throw new Error("Invalid data received from API")
+    }
   } catch (error) {
-    prayerTimesList.innerHTML = "<li>عذرًا، حدث خطأ أثناء تحميل مواقيت الصلاة.</li>";
+    console.error("Error fetching prayer times:", error)
+    prayerTimesList.innerHTML = "<li>عذرًا، حدث خطأ أثناء تحميل مواقيت الصلاة. يرجى المحاولة مرة أخرى لاحقًا.</li>"
   }
 }
 
-document.addEventListener("DOMContentLoaded", updateWebsite);
-setInterval(updateWebsite, 60000);
+function toggleTestMode() {
+  isTestMode = !isTestMode
+  const toggleButton = document.getElementById("toggleTestMode")
+  const dateInputContainer = document.getElementById("dateInputContainer")
+
+  if (isTestMode) {
+    toggleButton.textContent = "إيقاف وضع الاختبار"
+    dateInputContainer.style.display = "block"
+    document.getElementById("testDate").valueAsDate = currentDate
+  } else {
+    toggleButton.textContent = "تفعيل وضع الاختبار"
+    dateInputContainer.style.display = "none"
+    currentDate = new Date()
+  }
+
+  updateState(currentDate)
+}
+
+document.getElementById("toggleTestMode").addEventListener("click", toggleTestMode)
+
+document.getElementById("testDate").addEventListener("change", (e) => {
+  if (isTestMode) {
+    currentDate = new Date(e.target.value)
+    updateState(currentDate)
+  }
+})
+
+function updateWebsite() {
+  if (!isTestMode) {
+    currentDate = new Date() // استخدام الوقت المحلي بدلاً من وقت الخادم
+  }
+  updateState(currentDate)
+}
+
+// تحديث الموقع كل دقيقة
+setInterval(updateWebsite, 60000)
+
+// التحديث الأولي عند تحميل الصفحة
+document.addEventListener("DOMContentLoaded", updateWebsite)
+
