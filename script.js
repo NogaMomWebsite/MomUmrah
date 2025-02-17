@@ -2,7 +2,7 @@ console.log("JavaScript is loaded")
 
 let currentDate = new Date()
 
-const startDate = new Date("2025-02-18")
+const startDate = new Date("2025-02-17")
 const endDate = new Date("2025-03-10")
 const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
 
