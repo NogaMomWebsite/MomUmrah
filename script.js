@@ -1,9 +1,17 @@
 console.log("JavaScript is loaded")
 
-let currentDate = new Date()
+// استخدام التاريخ الحالي بتوقيت مكة المكرمة
+function getCurrentDateInMecca() {
+  const now = new Date()
+  const meccaOffset = 3 // توقيت مكة المكرمة هو UTC+3
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000
+  return new Date(utc + 3600000 * meccaOffset)
+}
 
-const startDate = new Date("2025-02-17")
-const endDate = new Date("2025-03-10")
+let currentDate = getCurrentDateInMecca()
+
+const startDate = new Date("2025-02-18T00:00:00+03:00")
+const endDate = new Date("2025-03-10T23:59:59+03:00")
 const totalDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
 
 const dailyMessages = [
@@ -61,7 +69,7 @@ const birthdayMessages = [
 ]
 
 function updateWebsite() {
-  currentDate = new Date()
+  currentDate = getCurrentDateInMecca()
   updateState(currentDate)
 }
 
@@ -72,9 +80,16 @@ function updateState(date) {
   const duaText = document.getElementById("duaText")
   const birthdayMessagesElement = document.getElementById("birthdayMessages")
 
+  console.log("Current date:", date)
+  console.log("Start date:", startDate)
+  console.log("End date:", endDate)
+
   if (isDateBetween(date, startDate, endDate)) {
     const elapsedDays = Math.floor((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
     const progress = (elapsedDays / totalDays) * 100
+
+    console.log("Elapsed days:", elapsedDays)
+    console.log("Progress:", progress)
 
     progressBar.style.width = `${progress}%`
     progressText.textContent = `باقي ${Math.ceil(totalDays - elapsedDays)} أيام على نهاية الرحلة`
