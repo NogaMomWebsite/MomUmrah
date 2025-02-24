@@ -1,5 +1,20 @@
 console.log("JavaScript is loaded")
 
+const firebaseConfig = {
+  apiKey: "AIzaSyB0jUmQQxMIpAZCVFBa4oq3HOJTrJh_w5A",
+  authDomain: "umrahwebsite-f9671.firebaseapp.com",
+  projectId: "umrahwebsite-f9671",
+  storageBucket: "umrahwebsite-f9671.firebasestorage.app",
+  messagingSenderId: "744455640371",
+  appId: "1:744455640371:web:b2527bcd51187e91ac5a46",
+  measurementId: "G-5S9S9XMNXY"
+};
+
+// تهيئة Firebase
+firebase.initializeApp(firebaseConfig)
+const db = firebase.firestore()
+const { getDocs, collection } = firebase.firestore;
+
 // استخدام التاريخ الحالي بتوقيت مكة المكرمة
 function getCurrentDateInMecca() {
   const now = new Date()
@@ -24,7 +39,7 @@ const dailyMessages = [
   "كل ما بفتكرك بدعيلك ربنا يحفظك ويرجعك لينا بالسلامة",
   "يارب تكوني بتحسي بالفرحة والإيمان في كل لحظة من عمرتك",
   "مفيش أجمل من إنك تكوني في بيت ربنا، ربنا يتقبل منك",
-  "عارفة إنك بتدعيلنا هناك، وإحنا كمان مش بننساكي من دعوتنا",
+  "عارف إنك بتدعيلنا هناك، وإحنا كمان مش بننساكي من دعوتنا",
   "يا رب ترجعي لينا وكلك نور وبركة من زيارتك للحرم",
   "كل يوم بيعدي وإحنا بنعد الأيام لحد ما ترجعي بالسلامة",
   "ربنا يجعل رحلتك دي سبب في سعادتك في الدنيا والآخرة",
@@ -60,13 +75,29 @@ const dailyDuas = [
   "اللهم اجعل آخر دعاء أمي في عمرتها مستجاب واختم لها بالخيرات",
 ]
 
-const birthdayMessages = [
-  "كل سنة وانتي طيبة يا أحلى أم في الدنيا! عيد ميلاد سعيد وانتي في بيت ربنا",
-  "يا بخت السنة دي بيكي يا أمي، عيد ميلاد سعيد وعمرة مباركة",
-  "عيد ميلادك السنة دي مميز يا ست الكل، ربنا يديم عليكي الصحة والسعادة",
-  "أجمل هدية ليكي في عيد ميلادك إنك في الحرم، كل سنة وانتي بخير يا أمي",
-  "عيد ميلاد سعيد يا أغلى الناس! دعواتنا ليكي من هنا وانتي في أطهر بقعة",
-]
+async function loadBirthdayMessages() {
+  const birthdayMessagesElement = document.getElementById("birthdayMessages");
+  const birthdayMessagesList = document.getElementById("birthdayMessagesList");
+  
+  db.collection("birthdayMessages").onSnapshot((snapshot) => {
+    let newMessages = [];
+    
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === "added") {
+        const message = document.createElement("p");
+        message.textContent = change.doc.data().message;
+        newMessages.push(message);
+      }
+    });
+
+    if (newMessages.length > 0) {
+      newMessages.forEach((msg) => birthdayMessagesList.appendChild(msg));
+      birthdayMessagesElement.style.display = "block";
+    }
+  }, (error) => {
+    console.error("خطأ في جلب رسائل عيد الميلاد:", error);
+  });
+}
 
 function updateWebsite() {
   currentDate = getCurrentDateInMecca()
@@ -110,15 +141,6 @@ function updateState(date) {
     document.getElementById("dailyMessage").style.display = "none"
     document.getElementById("dailyDua").style.display = "none"
   }
-
-  if (isBirthday(date)) {
-    birthdayMessagesElement.style.display = "block"
-    const birthdayMessagesList = document.getElementById("birthdayMessagesList")
-    birthdayMessagesList.innerHTML = birthdayMessages.map((msg) => `<p>${msg}</p>`).join("")
-  } else {
-    birthdayMessagesElement.style.display = "none"
-  }
-
   updatePrayerTimes(date)
 }
 
@@ -168,5 +190,8 @@ async function updatePrayerTimes(date) {
 setInterval(updateWebsite, 60000)
 
 // التحديث الأولي عند تحميل الصفحة
-document.addEventListener("DOMContentLoaded", updateWebsite)
+document.addEventListener("DOMContentLoaded", () => {
+  updateWebsite();
+  loadBirthdayMessages();
+});
 
