@@ -74,6 +74,10 @@ const dailyDuas = [
   "يا رب ارزق أمي رؤية وجهك الكريم في الجنة",
   "اللهم اجعل آخر دعاء أمي في عمرتها مستجاب واختم لها بالخيرات",
 ]
+function isBirthday(date) {
+  console.log("Checking birthday for date:", date.toISOString()); // طباعة التاريخ لفحصه
+  return date.getUTCMonth() === 1 && date.getUTCDate() === 26;
+}
 
 async function loadBirthdayMessages() {
   const birthdayMessagesElement = document.getElementById("birthdayMessages");
@@ -148,9 +152,6 @@ function isDateBetween(date, start, end) {
   return date >= start && date <= end
 }
 
-function isBirthday(date) {
-  return date.getMonth() === 1 && date.getDate() === 26 // 26 فبراير (لاحظ أن الشهور تبدأ من 0)
-}
 
 async function updatePrayerTimes(date) {
   const prayerTimesList = document.getElementById("prayerTimesList")
@@ -192,6 +193,10 @@ setInterval(updateWebsite, 60000)
 // التحديث الأولي عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
   updateWebsite();
-  loadBirthdayMessages();
+  
+  if (isBirthday(getCurrentDateInMecca())) {
+    loadBirthdayMessages();
+  } else {
+    document.getElementById("birthdayMessages").style.display = "none"; 
+  }
 });
-
